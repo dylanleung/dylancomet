@@ -1,81 +1,69 @@
-$(function () {
-    "use strict";
-    var content = $('#content');
-    var input = $('#input');
-    var status = $('#status');
-    var myName = false;
-    var author = null;
-    var logged = false;
-    var socket = $.atmosphere;
-    var request = { url: document.location.toString() + 'chat',
-        contentType : "application/json",
-        logLevel : 'debug',
-        transport : 'websocket' ,
-        fallbackTransport: 'long-polling'};
+var wsApi = {
+            connectedEndpoint:null,
+            callbackAdded:false,
+            incompleteMessage:"",
+            subscribe:function () {
+                function callback(response) {
+                    if (response.transport != 'polling' && response.state == 'messageReceived') {
+                        if (response.status == 200) {
+                            var data = response.responseBody;
+                            try {
+                                chatApi.update(data);
+                            } catch (err) {
+                                console.log(err);
+                            }
+                        }
+                    }
+                }
 
+                /* transport can be : long-polling, streaming or websocket */
+                this.connectedEndpoint = $.atmosphere.subscribe('${pageContext.request.contextPath}/websockets',
+                        !this.callbackAdded ? callback : null,
+                        $.atmosphere.request = {transport:'websocket', logLevel:'none'});
+                callbackAdded = true;
+            },
 
-    request.onOpen = function(response) {
-        content.html($('<p>', { text: 'Atmosphere connected using ' + response.transport }));
-        input.removeAttr('disabled').focus();
-        status.text('Choose name:');
-    };
+            send:function (message) {
+                console.log("Sending message");
+                console.log(message);
+                this.connectedEndpoint.push(JSON.stringify(message))
+            },
 
-    request.onMessage = function (response) {
-        var message = response.responseBody;
-        try {
-            var json = jQuery.parseJSON(message);
-        } catch (e) {
-            console.log('This doesn\'t look like a valid JSON: ', message.data);
-            return;
-        }
-
-        if (!logged) {
-            logged = true;
-            status.text(myName + ': ').css('color', 'blue');
-            input.removeAttr('disabled').focus();
-        } else {
-            input.removeAttr('disabled');
-
-            var me = json.author == author;
-            var date =  typeof(json.time) == 'string' ? parseInt(json.time) : json.time;
-            addMessage(json.author, json.text, me ? 'blue' : 'black', new Date(date));
-        }
-    };
-
-    request.onClose = function(response) {
-        logged = false;
-    }
-
-    request.onError = function(response) {
-        content.html($('<p>', { text: 'Sorry, but there\'s some problem with your '
-            + 'socket or the server is down' }));
-    };
-
-    var subSocket = socket.subscribe(request);
-
-    input.keydown(function(e) {
-        if (e.keyCode === 13) {
-            var msg = $(this).val();
-
-            // First message is always the author's name
-            if (author == null) {
-                author = msg;
+            unsubscribe:function () {
+                $.atmosphere.unsubscribe();
             }
+        };
 
-            subSocket.push(jQuery.stringifyJSON({ author: author, message: msg }));
-            $(this).val('');
-
-            input.attr('disabled', 'disabled');
-            if (myName === false) {
-                myName = msg;
+        var chatApi = {
+            update:function (data) {
+                var $chat = $("#chat");
+                $("<li></li>").text(data).prependTo($chat);
             }
-        }
-    });
+        };
 
-    function addMessage(author, message, color, datetime) {
-        content.append('<p><span style="color:' + color + '">' + author + '</span> @ ' +
-            + (datetime.getHours() < 10 ? '0' + datetime.getHours() : datetime.getHours()) + ':'
-            + (datetime.getMinutes() < 10 ? '0' + datetime.getMinutes() : datetime.getMinutes())
-            + ': ' + message + '</p>');
-    }
-});
+        $(function () {
+            wsApi.subscribe();
+            var currentChannel = null;
+            $("#join").click(function () {
+                if (currentChannel !== null) {
+                    wsApi.send({"type":"unsubscribe", "channel":currentChannel});
+                }
+                var channel = $("#channel").val();
+                wsApi.send({"type":"subscribe", "channel":channel});
+                currentChannel = channel;
+            });
+
+            $("#leave").click(function () {
+                wsApi.send({"type":"unsubscribe", "channel":currentChannel});
+                currentChannel = null;
+            });
+
+            $("#subscribe").click(function () {
+                wsApi.subscribe();
+            });
+
+            $("#unsubscribe").click(function () {
+                wsApi.unsubscribe();
+            });
+
+        });
