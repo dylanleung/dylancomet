@@ -5,16 +5,14 @@
 	id="WebApp_ID" version="3.0">
 	<display-name>dylancomet</display-name>
 
-	<!-- Load spring context -->
-	<!--<context-param> -->
-	<!--<param-name>contextConfigLocation</param-name> -->
-	<!--<param-value>/WEB-INF/applicationContext.xml</param-value> -->
-	<!--</context-param> -->
-
-	<!--<listener> -->
-	<!--<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class> -->
-	<!--</listener> -->
-
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>classpath:META-INF/spring/root-context.xml</param-value>
+	</context-param>
+	
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
 
 	<!-- Define Atmosphere Servlet -->
 	<servlet>
@@ -25,22 +23,17 @@
 			<param-value>org.springframework.web.servlet.DispatcherServlet</param-value>
 		</init-param>
 		<init-param>
-			<param-name>contextClass</param-name>
-			<param-value>
-                org.springframework.web.context.support.AnnotationConfigWebApplicationContext
-            </param-value>
-		</init-param>
-		<init-param>
 			<param-name>contextConfigLocation</param-name>
-			<param-value>com.gdxh.web.config.ComponentConfiguration</param-value>
+			<param-value>classpath:META-INF/spring/mvc/servlet-context.xml</param-value>
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
-
+	
 	<servlet-mapping>
 		<servlet-name>appServlet</servlet-name>
 		<url-pattern>/</url-pattern>
 	</servlet-mapping>
+	
 
 
 	<filter>
