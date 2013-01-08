@@ -1,274 +1,232 @@
 <%@ include file="/WEB-INF/views/includes/taglibs.jsp"%>
 
+<spring:url scope="page" var="jqueryJavascriptUrl"
+	value="/resources/js/jquery-1.7.1.js" />
+<spring:url scope="page" var="jqueryTmplJavascriptUrl"
+	value="/resources/js/jquery.tmpl.min.js" />
+<spring:url scope="page" var="jqueryAtmosphereUrl"
+	value="/resources/js/jquery.atmosphere.js" />
+<spring:url scope="page" var="bootstrapUrl"
+	value="/resources/js/bootstrap.js" />
+<spring:url scope="page" var="bootstrapCssUrl"
+	value="/resources/css/bootstrap.css" />
+<spring:url scope="page" var="bootstrapResponsiveCssUrl"
+	value="/resources/css/bootstrap-responsive.css" />
+
 <!DOCTYPE HTML>
 <html>
 <head>
+
 <title>Welcome to Spring Web MVC - Atmosphere Sample</title>
+
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-
-<link rel="stylesheet" href="<c:url value='/css/blueprint/screen.css'/>"
-	type="text/css" media="screen, projection">
-<link rel="stylesheet" href="<c:url value='/css/blueprint/print.css'/>"
-	type="text/css" media="print">
-<!--[if lt IE 8]>
-			<link rel="stylesheet" href="/css/blueprint/ie.css" type="text/css" media="screen, projection">
-		<![endif]-->
-
-<link rel="stylesheet" href="<c:url value='/css/main.css'/>"
-	type="text/css">
-
-<script src="<c:url value='/js/jquery/jquery.js'/>"></script>
-<script src="<c:url value='/js/jquery/jquery.tmpl.min.js'/>"></script>
-<script src="<c:url value='/js/jquery/jquery.atmosphere.js'/>"></script>
-
-<script src="<c:url value='/js/underscore.js'/>"></script>
-<script src="<c:url value='/js/handlebars.js'/>"></script>
-<script src="<c:url value='/js/backbone.js'/>"></script>
-
+<script src="${pageScope.jqueryJavascriptUrl}"></script>
+<script src="${pageScope.jqueryTmplJavascriptUrl}"></script>
+<script src="${pageScope.jqueryAtmosphereUrl}"></script>
+<script src="${pageScope.bootstrapUrl}"></script>
+<link rel="stylesheet" href="${pageScope.bootstrapCssUrl}" />
+<link rel="stylesheet" href="${pageScope.bootstrapResponsiveCssUrl}" />
 </head>
 <body>
-	<div class="container">
-		<div id="header" class="prepend-1 span-22 append-1 last">
-			<h1 class="loud">Welcome to Spring Web MVC - Atmosphere Sample</h1>
-			<h4>
-				Code: <a
-					href="https://github.com/ghillert/spring-asynchttp-examples">https://github.com/ghillert/spring-atmosphere-samples</a>
-			</h4>
+	<section id="view-twitter-feed">
+		<div class="container-fluid">
+			<header class="page-header">
+				<h3>Twitter Demo w/ SpringMVC and Atmosphere</h3>
+			</header>
+			<div class="row-fluid">
+				<div class="span2">
+					<ul class="nav nav-list">
+						<li class="nav-header">Select Transport</li>
+						<li id="websockets-item"><a href="#">Websockets</a></li>
+						<li id="streaming-item" class="active"><a href="#">Streaming</a>
+						</li>
+						<li id="polling-item"><a href="#">Polling</a></li>
+						<li id="long-polling-item"><a href="#">Long Polling</a></li>
+					</ul>
+					<br />
+					<header class="nav-header">
+						<h3>Stats</h3>
+					</header>
+					<table id="chartableStats" class="table-condensed">
+						<thead>
+							<tr>
+								<th scope="col"></th>
+								<th scope="col"></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<th scope="row" style="color: #1751A7"># of Callbacks</th>
+								<td id="numberOfCallbackInvocations">0</td>
+							</tr>
+							<tr>
+								<th scope="row" style="color: #8AA717"># Tweets</th>
+								<td id="numberOfTweets">0</td>
+							</tr>
+							<tr>
+								<th scope="row" style="color: #A74217"># Errors</th>
+								<td id="numberOfErrors">0</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="span10">
+					<table class="table-striped table-bordered">
+						<thead>
+							<tr>
+								<th width="800">Twitter Messages</th>
+							</tr>
+						</thead>
+						<tbody id="twitterMessages">
+							<tr id="placeHolder">
+								<td>Searching...</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
 		</div>
-		<div id="status" class="prepend-1 span-17 last"
-			style="background-color: #FFFFDD;">Status Messages will appear
-			here...</div>
-		<div id="content" class="prepend-1 span-17 prepend-top last">
-			<input id="message-field" type="text" size="40"
-				value="Send a tweet to connected clients" /> <input
-				id="message-button" type="button" value="Send" />
-			<ul id="twitterMessages">
-				<li id="placeHolder">Searching...</li>
-			</ul>
-		</div>
-		<div id="stats" class="prepend-1 span-4 append-1 prepend-top last">
-			<table id="asynchHttpStats">
-				<caption>AsynchHttp Stats</caption>
-				<thead>
-					<tr>
-						<th></th>
-						<th></th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td>Protocol</td>
-						<td id="transportType">N/A</td>
-					</tr>
-				</tbody>
-			</table>
-			<table id="chartableStats">
-				<caption>Stats</caption>
-				<thead>
-					<tr>
-						<th scope="col"></th>
-						<th scope="col"></th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<th scope="row" style="color: #1751A7"># of Messages</th>
-						<td id="numberOfCallbackInvocations">0</td>
-					</tr>
-					<tr>
-						<th scope="row" style="color: #8AA717"># Tweets</th>
-						<td id="numberOfTweets">0</td>
-					</tr>
-					<tr>
-						<th scope="row" style="color: #A74217"># Errors</th>
-						<td id="numberOfErrors">0</td>
-					</tr>
-				</tbody>
-			</table>
-		</div>
-	</div>
+	</section>
 
-	<script id="tweet-template" type="text/x-handlebars-template">
-			{{#each tweets}}
-				{{#with this}}
-					<li>
-						<img alt='{{fromUser}}' title='{{fromUser}}' src='{{profileImageUrl}}' width='48' height='48'>
-						<div>{{text}}</div>
-					</li>
-				{{/with}}
-			{{/each}}
-		</script>
+	<script id="template" type="text/x-jquery-tmpl">
+        <tr>
+			<td>
+				<img align="left" alt='\${fromUser}' title='\${fromUser}' src='\${profileImageUrl}' width='48' height='48'>
+					<div>
+						&nbsp;&nbsp;&nbsp;<c:out value='\${text}'/>
+					</div>
+			</td>
+		</tr>
+        </script>
 
 	<script type="text/javascript">
-		$(function() {
+		var socket = $.atmosphere;
 
-			if (!window.console) {
-				console = {
-					log : function() {
-					}
-				};
-			}
-
-			var StatusMessage = Backbone.Model.extend({});
-
-			var TwitterMessage = Backbone.Model.extend({});
-
-			var TwitterMessages = Backbone.Collection.extend({
-				model : TwitterMessage
-			});
-
-			var source = $("#tweet-template").html();
-			var tweetTemplate = Handlebars.compile(source);
-
+		function handleAtmosphere(transport) {
 			var asyncHttpStatistics = {
 				transportType : 'N/A',
 				responseState : 'N/A',
-				numberOfTotalMessages : 0,
+				numberOfCallbackInvocations : 0,
 				numberOfTweets : 0,
 				numberOfErrors : 0
 			};
 
 			function refresh() {
-
 				console.log("Refreshing data tables...");
-
-				$('#transportType').html(asyncHttpStatistics.transportType);
 				$('#responseState').html(asyncHttpStatistics.responseState);
 				$('#numberOfCallbackInvocations').html(
-						asyncHttpStatistics.numberOfTotalMessages);
+						asyncHttpStatistics.numberOfCallbackInvocations);
 				$('#numberOfTweets').html(asyncHttpStatistics.numberOfTweets);
 				$('#numberOfErrors').html(asyncHttpStatistics.numberOfErrors);
-
 			}
+			var request = new $.atmosphere.AtmosphereRequest();
+			request.transport = transport;
+			request.url = "<c:url value='/twitter/concurrency'/>";
+			request.contentType = "application/json";
+			request.fallbackTransport = null;
+			//request.callback = buildTemplate;
 
-			function onMessage(response) {
-				asyncHttpStatistics.numberOfTotalMessages++;
-				refresh();
-				var message = response.responseBody;
-				var result;
-
-				try {
-					result = $.parseJSON(message);
-				} catch (e) {
-					asyncHttpStatistics.numberOfErrors++;
-					console
-							.log("An error ocurred while parsing the JSON Data: "
-									+ message.data + "; Error: " + e);
-					return;
-				}
-
-				//asyncHttpStatistics.numberOfCallbackInvocations++;
-				//asyncHttpStatistics.transportType = response.transport;
-				//asyncHttpStatistics.responseState = response.responseState;
-
-				//$.atmosphere.log('info', ["response.state: " + response.state]);
-				//$.atmosphere.log('info', ["response.transport: " + response.transport]);
-
-				var resultType = result['@class'];
-				console.log('Object type returned: ' + resultType);
-
-				if (resultType == "org.springframework.mvc.samples.atmosphere.model.TwitterMessage") {
-					handleTwitterMessage(new TwitterMessage(result));
-				} else if (resultType == "org.springframework.mvc.samples.atmosphere.model.TwitterMessages") {
-					console.log('raw-----' + result);
-					handleTwitterMessages(new TwitterMessages(
-							result.twitterMessages));
-				} else if (resultType == "org.springframework.mvc.samples.atmosphere.model.StatusMessage") {
-					handleStatusMessage(new StatusMessage(result));
-				} else {
-					throw "resultType " + resultType + " is not handled.";
-				}
-
-				refresh();
-			}
-
-			function handleTwitterMessage(data) {
-
-				console.log("Handling Twitter Message...");
-
-				var visible = $('#placeHolder').is(':visible');
-
-				if (result.length > 0 && visible) {
-					$("#placeHolder").fadeOut();
-				}
-
-				//asyncHttpStatistics.numberOfTweets = asyncHttpStatistics.numberOfTweets + result.length;
-
-				/*
-				$( "#template" ).tmpl( result ).hide().prependTo( "#twitterMessages").fadeIn(); */
-			}
-
-			function handleTwitterMessages(data) {
-
-				console.log("Handling Twitter Messages...");
-				var x = data.toJSON();
-				console.log(x);
-
-				var visible = $('#placeHolder').is(':visible');
-
-				if (data.length > 0 && visible) {
-					$("#placeHolder").fadeOut();
-				}
-
-				asyncHttpStatistics.numberOfTweets = asyncHttpStatistics.numberOfTweets
-						+ data.length;
-
-				var context = {
-					tweets : data.toJSON()
-				};
-				var html = tweetTemplate(context);
-
-				$(html).hide().prependTo("#twitterMessages").fadeIn();
-
-			}
-
-			function handleStatusMessage(data) {
-				console.log("Handling Status Message...");
-				$('#status').html(data.get('message'));
-			}
-
-			var socket = $.atmosphere;
-			var subSocket;
-			var transport = 'websocket';
-			var websocketUrl = "${fn:replace(r.requestURL, r.requestURI, '')}${r.contextPath}/websockets/";
-
-			var request = {
-				url : websocketUrl,
-				contentType : "application/json",
-				logLevel : 'debug',
-				//shared : 'true',
-				transport : transport,
-				fallbackTransport : 'long-polling',
-				//reconnectInterval: 10000,
-				//callback: callback,
-				onMessage : onMessage,
-				onOpen : function(response) {
-					console
-							.log('Atmosphere onOpen: Atmosphere connected using '
-									+ response.transport);
-					transport = response.transport;
-					asyncHttpStatistics.transportType = response.transport;
-					refresh();
-				},
-				onReconnect : function(request, response) {
-					console.log("Atmosphere onReconnect: Reconnecting");
-				},
-				onClose : function(response) {
-					console.log('Atmosphere onClose executed');
-				},
-
-				onError : function(response) {
-					console
-							.log('Atmosphere onError: Sorry, but there is some problem with your '
-									+ 'socket or the server is down');
-				}
+			request.onMessage = function(response) {
+				buildTemplate(response);
 			};
 
-			subSocket = socket.subscribe(request);
+			request.onMessagePublished = function(response) {
 
-			$('#message-button').click(function() {
-				subSocket.push($('#message-field').val());
+			};
+
+			request.onOpen = function() {
+				$.atmosphere.log('info', [ 'socket open' ]);
+			};
+			request.onError = function() {
+				$.atmosphere.log('info', [ 'socket error' ]);
+			};
+			request.onReconnect = function() {
+				$.atmosphere.log('info', [ 'socket reconnect' ]);
+			};
+
+			var subSocket = socket.subscribe(request);
+
+			function buildTemplate(response) {
+				asyncHttpStatistics.numberOfCallbackInvocations++;
+				asyncHttpStatistics.transportType = response.transport;
+				asyncHttpStatistics.responseState = response.responseState;
+
+				$.atmosphere.log('info',
+						[ "response.state: " + response.state ]);
+				$.atmosphere.log('info', [ "response.transport: "
+						+ response.transport ]);
+				$.atmosphere.log('info', [ "response.responseBody: "
+						+ response.responseBody ]);
+
+				if (response.state = "messageReceived") {
+
+					var data = response.responseBody;
+
+					if (data) {
+
+						try {
+							var result = $.parseJSON(data);
+
+							var visible = $('#placeHolder').is(':visible');
+
+							if (result.length > 0 && visible) {
+								$("#placeHolder").fadeOut();
+							}
+
+							asyncHttpStatistics.numberOfTweets = asyncHttpStatistics.numberOfTweets
+									+ result.length;
+
+							$("#template").tmpl(result).hide().prependTo(
+									"#twitterMessages").fadeIn();
+
+						} catch (error) {
+							asyncHttpStatistics.numberOfErrors++;
+							console.log("An error ocurred: " + error);
+						}
+					} else {
+						console
+								.log("response.responseBody is null - ignoring.");
+					}
+
+					refresh();
+				}
+			}
+		}
+
+		handleAtmosphere("streaming");
+
+		$(function() {
+			$("#streaming-item").click(function() {
+				removeActive();
+				socket.unsubscribe();
+				handleAtmosphere("streaming");
+				$('#streaming-item').toggleClass("active");
 			});
+			$("#websockets-item").click(function() {
+				removeActive();
+				socket.unsubscribe();
+				handleAtmosphere("websocket");
+				$('#websockets-item').toggleClass("active");
+			});
+			$("#polling-item").click(function() {
+				removeActive();
+				socket.unsubscribe();
+				handleAtmosphere('polling');
+				$('#polling-item').toggleClass("active");
+			});
+			$("#long-polling-item").click(function() {
+				removeActive();
+				socket.unsubscribe();
+				handleAtmosphere('long-polling');
+				$('#long-polling-item').toggleClass("active");
+			});
+
+			function removeActive() {
+				$('#websockets-item').toggleClass("active", false);
+				$('#streaming-item').toggleClass("active", false);
+				$('#polling-item').toggleClass("active", false);
+				$('#long-polling-item').toggleClass("active", false);
+			}
 		});
 	</script>
 </body>

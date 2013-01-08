@@ -15,4 +15,3 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 
 <c:set var="ctx" value="${pageContext['request'].contextPath}" />
-<c:set var="r" value="${pageContext.request}" />
