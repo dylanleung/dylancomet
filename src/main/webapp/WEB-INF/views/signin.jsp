@@ -18,7 +18,7 @@
 			<div class="span14 columns offset2">
 				<h1>Spring Social Weibo Example Application</h1>
 				<h5>Sources: <a href="https://github.com/GabiAxel/spring-social-google/">https://github.com/GabiAxel/spring-social-google/</a></h5>
-				<form action="signin/weibo" method="GET">
+				<form action="signin/weibo" method="POST">
 				    <button type="submit" class="btn btn-large btn-primary">Sign in with Weibo</button>
 				    <input type="hidden" name="scope" value="friendships_groups_read,friendships_groups_write,statuses_to_me_read,follow_app_official_microblog"/>		    
 				</form>
